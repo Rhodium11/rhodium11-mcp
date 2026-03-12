@@ -1,7 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import type { RH11Client } from "../client/rh11-client.js";
-import type { ScheduleEntry, MessageResponse } from "../client/types.js";
+import type { ScheduleEntry, ScheduleResponse } from "../client/types.js";
 import { formatResult, formatErrorResult } from "../utils/response.js";
 
 const scheduleEntrySchema = z.object({
@@ -21,7 +21,7 @@ export function registerScheduleTools(server: McpServer, client: RH11Client) {
     { readOnlyHint: true  },
     async (params) => {
       try {
-        const res = await client.request<ScheduleEntry[]>(
+        const res = await client.request<ScheduleResponse>(
           "GET",
           `/api/v1/projects/${encodeURIComponent(params.ui_id)}/schedule`,
         );
@@ -47,7 +47,7 @@ export function registerScheduleTools(server: McpServer, client: RH11Client) {
     async (params) => {
       try {
         // Body must wrap entries in a `schedule` key
-        const res = await client.request<ScheduleEntry[]>(
+        const res = await client.request<ScheduleResponse>(
           "PUT",
           `/api/v1/projects/${encodeURIComponent(params.ui_id)}/schedule`,
           { schedule: params.schedule },
@@ -84,7 +84,7 @@ export function registerScheduleTools(server: McpServer, client: RH11Client) {
           wishlist: params.wishlist ?? 0,
         };
 
-        const res = await client.request<ScheduleEntry[]>(
+        const res = await client.request<ScheduleResponse>(
           "POST",
           `/api/v1/projects/${encodeURIComponent(params.ui_id)}/schedule/quick`,
           body,

@@ -143,6 +143,17 @@ export interface ScheduleEntry {
   wishlist: number;
 }
 
+export interface ScheduleResponse {
+  ui_id: string;
+  services: {
+    atc: number;
+    sfb: number;
+    pgv: number;
+    wishlist: number;
+  };
+  scheduling: ScheduleEntry[];
+}
+
 // ── Orders ───────────────────────────────────────────────────────────────────
 
 export interface Order {
