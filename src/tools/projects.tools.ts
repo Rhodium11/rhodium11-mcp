@@ -55,7 +55,7 @@ export function registerProjectsTools(server: McpServer, client: RH11Client) {
         .max(200)
         .describe("Target keyword (3-200 characters)"),
     },
-    { destructiveHint: false  },
+    {},
     async (params) => {
       try {
         const res = await client.request<Project>("POST", "/api/v1/projects", {

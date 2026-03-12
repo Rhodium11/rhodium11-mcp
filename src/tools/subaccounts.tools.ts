@@ -38,7 +38,7 @@ export function registerSubaccountsTools(
       first_name: z.string().describe("First name"),
       last_name: z.string().describe("Last name"),
     },
-    { destructiveHint: false  },
+    {},
     async (params) => {
       try {
         const res = await client.request<SubAccount>(
