@@ -76,7 +76,7 @@ export function registerSubaccountsTools(
       first_name: z.string().optional().describe("New first name"),
       last_name: z.string().optional().describe("New last name"),
     },
-    { idempotentHint: true  },
+    {},
     async (params) => {
       try {
         const body: Record<string, unknown> = {};

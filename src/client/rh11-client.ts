@@ -218,6 +218,9 @@ export class RH11Client {
 
     const res = await fetch(url, options);
 
+    // Note: non-JSON responses (e.g., gateway 502/401) throw here and bypass
+    // the 401-retry path in request(). This is acceptable — gateway-level 401s
+    // are not recoverable via token refresh anyway.
     let json: ApiResponse<T>;
     try {
       json = (await res.json()) as ApiResponse<T>;
