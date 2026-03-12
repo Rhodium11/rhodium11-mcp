@@ -76,7 +76,16 @@ export class RH11Client {
       body: JSON.stringify({ api_key: this.apiKey }),
     });
 
-    const json = (await res.json()) as ApiResponse<TokenResponse>;
+    let json: ApiResponse<TokenResponse>;
+    try {
+      json = (await res.json()) as ApiResponse<TokenResponse>;
+    } catch {
+      throw new RH11ApiError(
+        res.status,
+        "PARSE_ERROR",
+        `Auth server returned non-JSON response (HTTP ${res.status})`,
+      );
+    }
 
     if (json.status === "error") {
       throw new RH11ApiError(
@@ -114,11 +123,19 @@ export class RH11Client {
         },
       });
 
-      const json = (await res.json()) as ApiResponse<RefreshResponse>;
+      let json: ApiResponse<RefreshResponse>;
+      try {
+        json = (await res.json()) as ApiResponse<RefreshResponse>;
+      } catch {
+        throw new RH11ApiError(
+          res.status,
+          "PARSE_ERROR",
+          `Refresh server returned non-JSON response (HTTP ${res.status})`,
+        );
+      }
 
       if (json.status === "error") {
-        // Refresh failed — clear tokens and throw so ensureAuth re-authenticates
-        this.jwt = null;
+        // Refresh failed — throw so catch block clears jwt and re-throws
         throw new Error(`Refresh failed: ${json.error.message}`);
       }
 
