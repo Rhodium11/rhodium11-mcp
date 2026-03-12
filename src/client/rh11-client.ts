@@ -56,7 +56,10 @@ export class RH11Client {
 
     // Proactive refresh: 30 seconds before expiry
     if (this.jwt.expires_at - nowSec < 30) {
-      this.authInProgress = this.refresh();
+      this.authInProgress = this.refresh().catch(() => {
+        // Refresh failed and cleared jwt — re-authenticate from scratch
+        return this.authenticate();
+      });
       try {
         await this.authInProgress;
       } finally {
@@ -91,29 +94,32 @@ export class RH11Client {
     };
   }
 
-  /** Refresh the access token. Falls back to full re-auth on failure. */
+  /**
+   * Refresh the access token.
+   * On failure, throws so ensureAuth() stays the single re-auth entry point.
+   */
   private async refresh(): Promise<void> {
     if (!this.jwt) {
-      await this.authenticate();
-      return;
+      throw new Error("Cannot refresh without existing tokens");
     }
+
+    const refreshToken = this.jwt.refresh_token;
 
     try {
       const res = await fetch(`${this.baseUrl}/api/v1/auth/refresh`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${this.jwt.refresh_token}`,
+          Authorization: `Bearer ${refreshToken}`,
         },
       });
 
       const json = (await res.json()) as ApiResponse<RefreshResponse>;
 
       if (json.status === "error") {
-        // Refresh failed — re-authenticate from scratch
+        // Refresh failed — clear tokens and throw so ensureAuth re-authenticates
         this.jwt = null;
-        await this.authenticate();
-        return;
+        throw new Error(`Refresh failed: ${json.error.message}`);
       }
 
       const { access_token } = json.data;
@@ -122,10 +128,10 @@ export class RH11Client {
         access_token,
         expires_at: decodeJwtExp(access_token),
       };
-    } catch {
-      // Network error on refresh — re-authenticate from scratch
+    } catch (e) {
+      // Clear tokens so next ensureAuth() triggers full re-auth
       this.jwt = null;
-      await this.authenticate();
+      throw e;
     }
   }
 
@@ -194,7 +200,17 @@ export class RH11Client {
     }
 
     const res = await fetch(url, options);
-    const json = (await res.json()) as ApiResponse<T>;
+
+    let json: ApiResponse<T>;
+    try {
+      json = (await res.json()) as ApiResponse<T>;
+    } catch {
+      throw new RH11ApiError(
+        res.status,
+        "PARSE_ERROR",
+        `Server returned non-JSON response (HTTP ${res.status})`,
+      );
+    }
 
     // Attach status code for retry logic
     return { ...json, _statusCode: res.status };
