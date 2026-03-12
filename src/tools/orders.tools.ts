@@ -32,7 +32,10 @@ export function registerOrdersTools(server: McpServer, client: RH11Client) {
           undefined,
           query,
         );
-        return formatPaginatedResult(res.data, res.meta!);
+        if (res.meta) {
+          return formatPaginatedResult(res.data, res.meta);
+        }
+        return formatResult(res.data);
       } catch (e) {
         return formatErrorResult(e);
       }

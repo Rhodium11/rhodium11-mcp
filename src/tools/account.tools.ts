@@ -36,6 +36,12 @@ export function registerAccountTools(server: McpServer, client: RH11Client) {
         if (params.last_name !== undefined) body.last_name = params.last_name;
         if (params.company !== undefined) body.company = params.company;
 
+        if (Object.keys(body).length === 0) {
+          return formatErrorResult(
+            new Error("At least one field (first_name, last_name, company) must be provided"),
+          );
+        }
+
         const res = await client.request<Account>(
           "PATCH",
           "/api/v1/account/profile",

@@ -86,6 +86,12 @@ export function registerSubaccountsTools(
           body.first_name = params.first_name;
         if (params.last_name !== undefined) body.last_name = params.last_name;
 
+        if (Object.keys(body).length === 0) {
+          return formatErrorResult(
+            new Error("At least one field (new_email, password, first_name, last_name) must be provided"),
+          );
+        }
+
         const res = await client.request<MessageResponse>(
           "PATCH",
           `/api/v1/sub-accounts/${encodeURIComponent(params.email)}`,

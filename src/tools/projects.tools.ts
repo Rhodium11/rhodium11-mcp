@@ -1,12 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import type { RH11Client } from "../client/rh11-client.js";
-import type {
-  Project,
-  ProjectListItem,
-  MessageResponse,
-  PaginationMeta,
-} from "../client/types.js";
+import type { Project, ProjectListItem, MessageResponse } from "../client/types.js";
 import { formatResult, formatErrorResult } from "../utils/response.js";
 
 export function registerProjectsTools(server: McpServer, client: RH11Client) {

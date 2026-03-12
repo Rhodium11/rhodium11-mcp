@@ -109,7 +109,7 @@ export interface Project {
     pgv: number;
     wishlist: number;
   };
-  scheduling: unknown[];
+  scheduling: ScheduleEntry[];
   data: {
     serps: Record<string, unknown>;
   };

@@ -1,7 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import type { RH11Client } from "../client/rh11-client.js";
-import type { WalletBalance, Transaction, PaginationMeta } from "../client/types.js";
+import type { WalletBalance, Transaction } from "../client/types.js";
 import {
   formatResult,
   formatPaginatedResult,
@@ -59,7 +59,10 @@ export function registerWalletTools(server: McpServer, client: RH11Client) {
           undefined,
           query,
         );
-        return formatPaginatedResult(res.data, res.meta!);
+        if (res.meta) {
+          return formatPaginatedResult(res.data, res.meta);
+        }
+        return formatResult(res.data);
       } catch (e) {
         return formatErrorResult(e);
       }
