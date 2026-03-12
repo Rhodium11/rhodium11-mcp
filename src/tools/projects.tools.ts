@@ -104,6 +104,12 @@ export function registerProjectsTools(server: McpServer, client: RH11Client) {
         const body: Record<string, unknown> = {};
         if (params.active !== undefined) body.active = params.active;
 
+        if (Object.keys(body).length === 0) {
+          return formatErrorResult(
+            new Error("At least one field (active) must be provided"),
+          );
+        }
+
         const res = await client.request<Project>(
           "PATCH",
           `/api/v1/projects/${encodeURIComponent(params.ui_id)}`,

@@ -47,7 +47,7 @@ export function registerScheduleTools(server: McpServer, client: RH11Client) {
     async (params) => {
       try {
         // Body must wrap entries in a `schedule` key
-        const res = await client.request<unknown>(
+        const res = await client.request<ScheduleEntry[]>(
           "PUT",
           `/api/v1/projects/${encodeURIComponent(params.ui_id)}/schedule`,
           { schedule: params.schedule },
@@ -77,13 +77,14 @@ export function registerScheduleTools(server: McpServer, client: RH11Client) {
     { destructiveHint: true, idempotentHint: true  },
     async (params) => {
       try {
-        const body: Record<string, unknown> = {};
-        if (params.atc !== undefined) body.atc = params.atc;
-        if (params.sfb !== undefined) body.sfb = params.sfb;
-        if (params.pgv !== undefined) body.pgv = params.pgv;
-        if (params.wishlist !== undefined) body.wishlist = params.wishlist;
+        const body: Record<string, unknown> = {
+          atc: params.atc ?? 0,
+          sfb: params.sfb ?? 0,
+          pgv: params.pgv ?? 0,
+          wishlist: params.wishlist ?? 0,
+        };
 
-        const res = await client.request<unknown>(
+        const res = await client.request<ScheduleEntry[]>(
           "POST",
           `/api/v1/projects/${encodeURIComponent(params.ui_id)}/schedule/quick`,
           body,

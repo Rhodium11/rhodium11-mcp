@@ -13,7 +13,10 @@ function decodeJwtExp(token: string): number {
   if (parts.length !== 3) throw new Error("Invalid JWT format");
   // Base64url → Base64 → Buffer → JSON
   const payload = Buffer.from(parts[1], "base64url").toString("utf-8");
-  const parsed = JSON.parse(payload) as { exp: number };
+  const parsed = JSON.parse(payload) as { exp?: number };
+  if (typeof parsed.exp !== "number") {
+    throw new Error("JWT missing exp claim");
+  }
   return parsed.exp; // Unix seconds
 }
 
@@ -181,12 +184,12 @@ export class RH11Client {
     }
 
     const headers: Record<string, string> = {
-      "Content-Type": "application/json",
       Authorization: `Bearer ${this.jwt!.access_token}`,
     };
 
     const options: RequestInit = { method, headers };
     if (body && method !== "GET") {
+      headers["Content-Type"] = "application/json";
       options.body = JSON.stringify(body);
     }
 
