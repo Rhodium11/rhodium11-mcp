@@ -1,0 +1,175 @@
+/** API response envelope for success responses. */
+export interface ApiSuccessResponse<T> {
+  status: "success";
+  data: T;
+  meta?: PaginationMeta;
+}
+
+/** API response envelope for error responses. */
+export interface ApiErrorResponse {
+  status: "error";
+  error: {
+    code: string;
+    message: string;
+  };
+}
+
+export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
+
+export interface PaginationMeta {
+  page: number;
+  per_page: number;
+  total: number;
+  total_pages: number;
+}
+
+/** POST /auth/token response — includes both tokens + cid. */
+export interface TokenResponse {
+  access_token: string;
+  refresh_token: string;
+  cid: string;
+}
+
+/** POST /auth/refresh response — access_token only, NO refresh_token. */
+export interface RefreshResponse {
+  access_token: string;
+}
+
+/** Stored JWT state within RH11Client. */
+export interface JwtState {
+  access_token: string;
+  refresh_token: string;
+  /** Unix seconds when the access token expires. */
+  expires_at: number;
+}
+
+// ── Account ──────────────────────────────────────────────────────────────────
+
+export interface Account {
+  cid: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  company: string;
+  account_type: string;
+  dt_created: string;
+  plan: string;
+}
+
+export interface Subscription {
+  account_type: string;
+  use_wallet: boolean;
+  plansv3: boolean;
+  plan_label: string;
+  subscription_fee: number;
+  plans_discount: number;
+}
+
+export interface ServiceRates {
+  [key: string]: unknown;
+}
+
+// ── Wallet ───────────────────────────────────────────────────────────────────
+
+export interface WalletBalance {
+  credits: number;
+  usd: number;
+  warning?: string;
+}
+
+export interface Transaction {
+  id: string;
+  dt_utc: string;
+  name: string;
+  event: string;
+  credits: number;
+  credit_balance: number | null;
+  usd: number;
+  usd_balance: number | null;
+  source: string;
+}
+
+// ── Projects ─────────────────────────────────────────────────────────────────
+
+export interface Project {
+  ui_id: string;
+  cid: string;
+  marketplace: string;
+  region: string;
+  asin: string | null;
+  itemid: string | null;
+  keyword: string;
+  active: boolean;
+  archived: boolean;
+  dt_utc: string;
+  product_id: string;
+  services: {
+    atc: number;
+    sfb: number;
+    pgv: number;
+    wishlist: number;
+  };
+  scheduling: unknown[];
+  data: {
+    serps: Record<string, unknown>;
+  };
+  unavailable: boolean;
+}
+
+export interface ProjectListItem {
+  ui_id: string;
+  marketplace: string;
+  region: string;
+  asin: string | null;
+  itemid: string | null;
+  keyword: string;
+  active: boolean;
+  archived: boolean;
+  product_id: string;
+  services: {
+    atc: number;
+    sfb: number;
+    pgv: number;
+    wishlist: number;
+  };
+}
+
+// ── Schedule ─────────────────────────────────────────────────────────────────
+
+export interface ScheduleEntry {
+  atc: number;
+  sfb: number;
+  pgv: number;
+  wishlist: number;
+}
+
+// ── Orders ───────────────────────────────────────────────────────────────────
+
+export interface Order {
+  order_id: string;
+  cid: string;
+  status: string;
+  dt_utc: string;
+  items: unknown[];
+  campaign: string;
+  region: string;
+  asin: string | null;
+  keyword: string;
+  ui_id: string;
+  issue_reported: boolean;
+}
+
+// ── Sub-Accounts ─────────────────────────────────────────────────────────────
+
+export interface SubAccount {
+  email: string;
+  first_name: string;
+  last_name: string;
+}
+
+// ── Generic message response (archive, sub-account update/delete) ────────────
+
+export interface MessageResponse {
+  message: string;
+  [key: string]: unknown;
+}

@@ -1,0 +1,199 @@
+import { RH11ApiError } from "../utils/errors.js";
+import type {
+  ApiResponse,
+  ApiSuccessResponse,
+  JwtState,
+  TokenResponse,
+  RefreshResponse,
+} from "./types.js";
+
+/** Decode a JWT payload without verifying signature (we only need `exp`). */
+function decodeJwtExp(token: string): number {
+  const parts = token.split(".");
+  if (parts.length !== 3) throw new Error("Invalid JWT format");
+  // Base64url → Base64 → Buffer → JSON
+  const payload = Buffer.from(parts[1], "base64url").toString("utf-8");
+  const parsed = JSON.parse(payload) as { exp: number };
+  return parsed.exp; // Unix seconds
+}
+
+export class RH11Client {
+  private jwt: JwtState | null = null;
+  private authInProgress: Promise<void> | null = null;
+
+  constructor(
+    private readonly apiKey: string,
+    private readonly baseUrl: string,
+  ) {}
+
+  /**
+   * Ensure we have a valid access token.
+   * - No tokens → authenticate with API key
+   * - Expiring in <30s → proactively refresh
+   * - Refresh fails → re-authenticate from scratch
+   */
+  private async ensureAuth(): Promise<void> {
+    // Prevent concurrent auth calls
+    if (this.authInProgress) {
+      await this.authInProgress;
+      return;
+    }
+
+    const nowSec = Math.floor(Date.now() / 1000);
+
+    if (!this.jwt) {
+      this.authInProgress = this.authenticate();
+      try {
+        await this.authInProgress;
+      } finally {
+        this.authInProgress = null;
+      }
+      return;
+    }
+
+    // Proactive refresh: 30 seconds before expiry
+    if (this.jwt.expires_at - nowSec < 30) {
+      this.authInProgress = this.refresh();
+      try {
+        await this.authInProgress;
+      } finally {
+        this.authInProgress = null;
+      }
+    }
+  }
+
+  /** Exchange API key for JWT tokens. */
+  private async authenticate(): Promise<void> {
+    const res = await fetch(`${this.baseUrl}/api/v1/auth/token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ api_key: this.apiKey }),
+    });
+
+    const json = (await res.json()) as ApiResponse<TokenResponse>;
+
+    if (json.status === "error") {
+      throw new RH11ApiError(
+        res.status,
+        json.error.code,
+        json.error.message,
+      );
+    }
+
+    const { access_token, refresh_token } = json.data;
+    this.jwt = {
+      access_token,
+      refresh_token,
+      expires_at: decodeJwtExp(access_token),
+    };
+  }
+
+  /** Refresh the access token. Falls back to full re-auth on failure. */
+  private async refresh(): Promise<void> {
+    if (!this.jwt) {
+      await this.authenticate();
+      return;
+    }
+
+    try {
+      const res = await fetch(`${this.baseUrl}/api/v1/auth/refresh`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.jwt.refresh_token}`,
+        },
+      });
+
+      const json = (await res.json()) as ApiResponse<RefreshResponse>;
+
+      if (json.status === "error") {
+        // Refresh failed — re-authenticate from scratch
+        this.jwt = null;
+        await this.authenticate();
+        return;
+      }
+
+      const { access_token } = json.data;
+      this.jwt = {
+        ...this.jwt,
+        access_token,
+        expires_at: decodeJwtExp(access_token),
+      };
+    } catch {
+      // Network error on refresh — re-authenticate from scratch
+      this.jwt = null;
+      await this.authenticate();
+    }
+  }
+
+  /**
+   * Make an authenticated API request.
+   * Retries once on 401 (token expired mid-request).
+   */
+  async request<T>(
+    method: string,
+    path: string,
+    body?: Record<string, unknown>,
+    query?: Record<string, string>,
+  ): Promise<ApiSuccessResponse<T>> {
+    await this.ensureAuth();
+    const response = await this.doRequest<T>(method, path, body, query);
+
+    // Single retry on 401
+    if (response.status === "error" && response._statusCode === 401) {
+      this.jwt = null;
+      await this.ensureAuth();
+      const retry = await this.doRequest<T>(method, path, body, query);
+      if (retry.status === "error") {
+        throw new RH11ApiError(
+          retry._statusCode ?? 500,
+          retry.error.code,
+          retry.error.message,
+        );
+      }
+      return retry as ApiSuccessResponse<T>;
+    }
+
+    if (response.status === "error") {
+      throw new RH11ApiError(
+        response._statusCode ?? 500,
+        response.error.code,
+        response.error.message,
+      );
+    }
+
+    return response as ApiSuccessResponse<T>;
+  }
+
+  private async doRequest<T>(
+    method: string,
+    path: string,
+    body?: Record<string, unknown>,
+    query?: Record<string, string>,
+  ): Promise<ApiResponse<T> & { _statusCode?: number }> {
+    let url = `${this.baseUrl}${path}`;
+    if (query) {
+      const params = new URLSearchParams(
+        Object.entries(query).filter(([, v]) => v !== undefined && v !== ""),
+      );
+      const qs = params.toString();
+      if (qs) url += `?${qs}`;
+    }
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${this.jwt!.access_token}`,
+    };
+
+    const options: RequestInit = { method, headers };
+    if (body && method !== "GET") {
+      options.body = JSON.stringify(body);
+    }
+
+    const res = await fetch(url, options);
+    const json = (await res.json()) as ApiResponse<T>;
+
+    // Attach status code for retry logic
+    return { ...json, _statusCode: res.status };
+  }
+}
