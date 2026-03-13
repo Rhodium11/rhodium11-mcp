@@ -1,6 +1,6 @@
 ---
 name: amazon-ranking-tools
-description: "Amazon product ranking and sales velocity tools for sellers. Manage ATC (Add to Cart), PGV (Page View), and SFB (Search Find Buy) campaigns to boost BSR, increase product visibility, and accelerate sales. 21 tools for project management, scheduling, order tracking, wallet balance, team sub-accounts, and service rate lookups. Supports Amazon, Walmart, and Target marketplaces across all regions. Automate daily campaign volumes, monitor order status, and scale ranking efforts — all through natural language. Keywords: amazon ranking tools, boost amazon sales, amazon SEO, product ranking, ASIN, sales velocity, campaign management, ranking acceleration, traffic generation, amazon seller tools."
+description: "Amazon product ranking and sales velocity tools. Use when the user mentions Amazon ranking, BSR, product visibility, ATC (Add to Cart), PGV (Page View), SFB (Search Find Buy), ranking campaigns, campaign scheduling, or wants to boost Amazon sales. Also use when the user asks about service rates, wallet balance, order tracking, or sub-account management for ranking services. Provides 21 MCP tools for managing projects, scheduling daily volumes, tracking orders, and scaling ranking efforts across Amazon, Walmart, and Target marketplaces. Keywords: amazon ranking tools, boost amazon sales, amazon SEO, ASIN, sales velocity, ranking acceleration, traffic generation, amazon seller tools."
 version: 1.0.0
 metadata:
   openclaw:

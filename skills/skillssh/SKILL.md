@@ -1,6 +1,6 @@
 ---
 name: amazon-ranking-tools
-description: "Amazon product ranking and sales velocity tools. Manage ATC, PGV, and SFB campaigns to boost BSR and increase product visibility. 21 MCP tools for projects, scheduling, orders, wallet, sub-accounts, and pricing across Amazon, Walmart, and Target."
+description: "Amazon product ranking and sales velocity tools. Use when the user mentions Amazon ranking, BSR, product visibility, ATC, PGV, SFB, ranking campaigns, campaign scheduling, or wants to boost Amazon sales. Also use when asking about service rates, wallet balance, order tracking, or sub-accounts for ranking services. 21 MCP tools across Amazon, Walmart, and Target."
 ---
 
 # Amazon Ranking Tools
