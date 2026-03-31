@@ -100,6 +100,11 @@ All tools are prefixed with `rh11_`. Use them by name.
 | `rh11_orders_get` | Get order details and status |
 | `rh11_orders_report_issue` | Report an issue with an order (max 5 per order) |
 
+### Feedback (1 tool)
+| Tool | What it does |
+|------|-------------|
+| `rh11_feedback_submit` | Submit feedback (10-5000 characters) |
+
 ## Services Explained
 
 - **Add to Cart (ATC)** — Generates add-to-cart actions on the target product to boost ranking signals.

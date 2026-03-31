@@ -166,7 +166,7 @@ export interface ProjectStatsResponse {
 
 export interface ProjectStatsDay {
   date: string;                    // YYYYMMDD
-  dt: string;                      // ISO datetime with timezone
+  dt: string | null;               // ISO datetime with timezone
   services: {
     sfb: ServiceDayStats;
     atc: ServiceDayStats;
