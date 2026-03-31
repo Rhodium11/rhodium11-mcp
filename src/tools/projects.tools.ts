@@ -4,24 +4,32 @@ import type { RH11Client } from "../client/rh11-client.js";
 import type { Project, ProjectListItem, MessageResponse } from "../client/types.js";
 import { formatResult, formatErrorResult } from "../utils/response.js";
 
+// Valid Amazon region codes (validated against CONSTANTS['MARKETPLACES'] in backend)
+const VALID_REGIONS = [
+  "US", "CA", "MX",          // Americas
+  "UK", "DE", "FR", "IT",    // Europe
+  "ES", "NL", "SE", "TR",    // Europe cont.
+  "JP", "AU", "IN",          // Asia-Pacific
+  "AE", "BR", "SG", "SA",   // Rest of world
+] as const;
+
 export function registerProjectsTools(server: McpServer, client: RH11Client) {
   server.tool(
     "rh11_projects_list",
-    "List Rhodium11 projects with optional filters. Returns product_id (ASIN for Amazon, itemid for other marketplaces), keyword, active status, and current service volumes.",
+    "List Rhodium11 Amazon projects with optional filters. Returns ASIN, keyword, active status, and current service volumes.",
     {
-      marketplace: z
-        .enum(["amazon", "walmart", "target"])
+      // Marketplace: currently Amazon-only. To re-enable walmart/target,
+      // restore: marketplace: z.enum(["amazon", "walmart", "target"]).optional()
+      region: z
+        .enum(VALID_REGIONS)
         .optional()
-        .describe("Filter by marketplace"),
-      region: z.string().optional().describe("Filter by region (e.g. 'US', 'UK')"),
+        .describe("Filter by Amazon region"),
       active: z.boolean().optional().describe("Filter by active status"),
     },
     { readOnlyHint: true  },
     async (params) => {
       try {
-        const query: Record<string, string> = {};
-        if (params.marketplace !== undefined)
-          query.marketplace = params.marketplace;
+        const query: Record<string, string> = { marketplace: "amazon" };
         if (params.region !== undefined) query.region = params.region;
         if (params.active !== undefined) query.active = String(params.active);
 
@@ -40,15 +48,16 @@ export function registerProjectsTools(server: McpServer, client: RH11Client) {
 
   server.tool(
     "rh11_projects_create",
-    "Create a new Rhodium11 project. If a project with the same product_id+keyword+region was previously archived, it will be reactivated instead (returns 201). For Amazon, product_id must be a valid ASIN. Keyword must be 3-200 characters.",
+    "Create a new Rhodium11 Amazon project. If a project with the same ASIN+keyword+region was previously archived, it will be reactivated instead (returns 201). ASIN must be a valid Amazon ASIN. Keyword must be 3-200 characters.",
     {
-      marketplace: z
-        .enum(["amazon", "walmart", "target"])
-        .describe("Marketplace (amazon, walmart, target)"),
-      region: z.string().describe("Region code (e.g. 'US', 'UK', 'DE')"),
-      product_id: z
+      // Marketplace: currently Amazon-only. To re-enable walmart/target,
+      // restore: marketplace: z.enum(["amazon", "walmart", "target"])
+      region: z
+        .enum(VALID_REGIONS)
+        .describe("Amazon region code"),
+      asin: z
         .string()
-        .describe("Product identifier (ASIN for Amazon, item ID for others)"),
+        .describe("Amazon ASIN (e.g. 'B01MTJK06C')"),
       keyword: z
         .string()
         .min(3)
@@ -59,9 +68,9 @@ export function registerProjectsTools(server: McpServer, client: RH11Client) {
     async (params) => {
       try {
         const res = await client.request<Project>("POST", "/api/v1/projects", {
-          marketplace: params.marketplace,
+          marketplace: "amazon",
           region: params.region,
-          product_id: params.product_id,
+          product_id: params.asin,
           keyword: params.keyword,
         });
         return formatResult(res.data);
@@ -124,7 +133,7 @@ export function registerProjectsTools(server: McpServer, client: RH11Client) {
 
   server.tool(
     "rh11_projects_archive",
-    "Archive (soft delete) a Rhodium11 project. The project can be reactivated by creating a new project with the same product_id+keyword+region.",
+    "Archive (soft delete) a Rhodium11 Amazon project. The project can be reactivated by creating a new project with the same ASIN+keyword+region.",
     {
       ui_id: z.string().describe("Project unique identifier"),
     },
