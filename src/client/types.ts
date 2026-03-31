@@ -137,9 +137,11 @@ export interface ProjectListItem {
 // ── Schedule ─────────────────────────────────────────────────────────────────
 
 export interface ScheduleEntry {
+  id: string;         // e.g. "04032026" or "ongoing"
+  date: string;       // e.g. "04/03/2026" or "ongoing"
   atc: number;
-  sfb: number;
-  pgv: number;
+  purchase: number;   // backend renames sfb → purchase
+  pageview: number;   // backend renames pgv → pageview
   wishlist: number;
 }
 

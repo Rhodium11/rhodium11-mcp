@@ -5,10 +5,14 @@ import type { ScheduleEntry, ScheduleResponse } from "../client/types.js";
 import { formatResult, formatErrorResult } from "../utils/response.js";
 
 const scheduleEntrySchema = z.object({
+  date: z
+    .string()
+    .describe("Date in YYYY-MM-DD format, or 'ongoing' for all future days until next update"),
   atc: z.number().int().min(0).describe("Add-to-cart volume"),
   sfb: z.number().int().min(0).describe("Search-find-buy volume"),
   pgv: z.number().int().min(0).describe("Page view volume"),
-  wishlist: z.number().int().min(0).describe("Wishlist volume"),
+  // Wishlist scheduling is not yet supported by the backend (always pass 0)
+  wishlist: z.number().int().min(0).describe("Wishlist volume (not yet supported — must be 0)"),
 });
 
 export function registerScheduleTools(server: McpServer, client: RH11Client) {
@@ -72,7 +76,7 @@ export function registerScheduleTools(server: McpServer, client: RH11Client) {
         .int()
         .min(0)
         .optional()
-        .describe("Wishlist volume per day (default 0)"),
+        .describe("Wishlist volume per day (not yet supported — must be 0)"),
     },
     { destructiveHint: true, idempotentHint: true  },
     async (params) => {
