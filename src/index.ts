@@ -9,6 +9,7 @@ import { registerProjectsTools } from "./tools/projects.tools.js";
 import { registerScheduleTools } from "./tools/schedule.tools.js";
 import { registerOrdersTools } from "./tools/orders.tools.js";
 import { registerSubaccountsTools } from "./tools/subaccounts.tools.js";
+import { registerFeedbackTools } from "./tools/feedback.tools.js";
 
 const apiKey = process.env.RH11_API_KEY;
 if (!apiKey) {
@@ -32,6 +33,7 @@ registerProjectsTools(server, client);
 registerScheduleTools(server, client);
 registerOrdersTools(server, client);
 registerSubaccountsTools(server, client);
+registerFeedbackTools(server, client);
 
 const transport = new StdioServerTransport();
 await server.connect(transport);
