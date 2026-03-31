@@ -1,6 +1,6 @@
 # rhodium11-mcp
 
-MCP server for [Rhodium11](https://rhodium11.com) Amazon ranking services. Exposes 22 tools for managing projects, schedules, orders, wallet, and sub-accounts through any MCP-compatible AI agent.
+MCP server for [Rhodium11](https://rhodium11.com) Amazon ranking services. Exposes 19 tools for managing projects, schedules, orders, wallet, and feedback through any MCP-compatible AI agent.
 
 ## Quick Start
 
@@ -33,7 +33,7 @@ Add the same configuration to your Cursor MCP settings.
 | `RH11_API_KEY` | Yes | — | Customer API key (`cak_` prefix) |
 | `RH11_BASE_URL` | No | `https://app.rhodium11.com` | API base URL |
 
-## Tools (22)
+## Tools (19)
 
 ### Account
 | Tool | Description |
@@ -57,6 +57,7 @@ Add the same configuration to your Cursor MCP settings.
 | `rh11_projects_get` | Get project details |
 | `rh11_projects_update` | Pause/resume a project |
 | `rh11_projects_archive` | Archive (soft delete) a project |
+| `rh11_projects_get_stats` | Get daily stats (execution, SERP, ARA, BR, SQR, ranks) |
 
 ### Schedule
 | Tool | Description |
@@ -71,14 +72,6 @@ Add the same configuration to your Cursor MCP settings.
 | `rh11_orders_list` | List orders (paginated) |
 | `rh11_orders_get` | Get order details |
 | `rh11_orders_report_issue` | Report an issue (max 5 per order) |
-
-### Sub-Accounts
-| Tool | Description |
-|------|-------------|
-| `rh11_subaccounts_list` | List sub-accounts |
-| `rh11_subaccounts_create` | Create sub-account |
-| `rh11_subaccounts_update` | Update sub-account (supports email rename) |
-| `rh11_subaccounts_delete` | Delete sub-account (deactivates associated API keys) |
 
 ### Feedback
 | Tool | Description |

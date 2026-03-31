@@ -156,6 +156,35 @@ export interface ScheduleResponse {
   scheduling: ScheduleEntry[];
 }
 
+// ── Project Stats ───────────────────────────────────────────────────────────
+
+export interface ProjectStatsResponse {
+  days: number;
+  total: number;
+  stats: ProjectStatsDay[];
+}
+
+export interface ProjectStatsDay {
+  date: string;                    // YYYYMMDD
+  dt: string;                      // ISO datetime with timezone
+  services: {
+    sfb: ServiceDayStats;
+    atc: ServiceDayStats;
+    wishlist: ServiceDayStats;
+    pgv: ServiceDayStats;
+  };
+  serp: Record<string, unknown> | null;
+  ara: Record<string, unknown> | null;
+  br: Record<string, unknown> | null;
+  sqr: Record<string, unknown> | null;
+  ranks: unknown[] | null;
+}
+
+export interface ServiceDayStats {
+  assignments: number | null;
+  executed: number;
+}
+
 // ── Orders ───────────────────────────────────────────────────────────────────
 
 export interface Order {

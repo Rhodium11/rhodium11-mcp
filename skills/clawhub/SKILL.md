@@ -1,6 +1,6 @@
 ---
 name: amazon-ranking-tools
-description: "Amazon product ranking and sales velocity tools. Use when the user mentions Amazon ranking, BSR, product visibility, ATC (Add to Cart), PGV (Page View), SFB (Search Find Buy), ranking campaigns, campaign scheduling, or wants to boost Amazon sales. Also use when the user asks about service rates, wallet balance, order tracking, or sub-account management for ranking services. Provides 21 MCP tools for managing projects, scheduling daily volumes, tracking orders, and scaling ranking efforts across Amazon, Walmart, and Target marketplaces. Keywords: amazon ranking tools, boost amazon sales, amazon SEO, ASIN, sales velocity, ranking acceleration, traffic generation, amazon seller tools."
+description: "Amazon product ranking and sales velocity tools. Use when the user mentions Amazon ranking, BSR, product visibility, ATC (Add to Cart), PGV (Page View), SFB (Search Find Buy), ranking campaigns, campaign scheduling, or wants to boost Amazon sales. Also use when the user asks about service rates, wallet balance, or order tracking for ranking services. Provides 19 MCP tools for managing projects, scheduling daily volumes, tracking orders, and scaling ranking efforts on Amazon. Keywords: amazon ranking tools, boost amazon sales, amazon SEO, ASIN, sales velocity, ranking acceleration, traffic generation, amazon seller tools."
 version: 1.0.0
 metadata:
   openclaw:
@@ -32,7 +32,6 @@ Activate this skill when the user asks about any of the following:
 - Scheduling daily campaign volumes
 - Checking wallet balance or transaction history
 - Viewing or managing orders for ranking services
-- Managing team members / sub-accounts
 - Checking service pricing or subscription details
 
 ## Setup — Getting an API Key
@@ -59,7 +58,7 @@ If the user does not have `RH11_API_KEY` configured, walk them through setup:
 
 Authentication is automatic after setup. The server exchanges the API key for a JWT on first use, refreshes it proactively, and retries on expiry. No manual token management needed.
 
-## Available Tools (21)
+## Available Tools (19)
 
 All tools are prefixed with `rh11_`. Use them by name.
 
@@ -77,7 +76,7 @@ All tools are prefixed with `rh11_`. Use them by name.
 | `rh11_wallet_get_balance` | Check credits and USD balance |
 | `rh11_wallet_get_transactions` | View transaction history (paginated) |
 
-### Projects (5 tools)
+### Projects (6 tools)
 | Tool | What it does |
 |------|-------------|
 | `rh11_projects_list` | List projects with optional marketplace/region/active filters |
@@ -85,6 +84,7 @@ All tools are prefixed with `rh11_`. Use them by name.
 | `rh11_projects_get` | Get project details including schedule and SERP data |
 | `rh11_projects_update` | Pause or resume a project |
 | `rh11_projects_archive` | Archive (soft delete) a project |
+| `rh11_projects_get_stats` | Get daily stats (execution, SERP, ARA, BR, SQR, ranks) |
 
 ### Schedule (3 tools)
 | Tool | What it does |
@@ -99,14 +99,6 @@ All tools are prefixed with `rh11_`. Use them by name.
 | `rh11_orders_list` | List orders (paginated, newest first) |
 | `rh11_orders_get` | Get order details and status |
 | `rh11_orders_report_issue` | Report an issue with an order (max 5 per order) |
-
-### Sub-Accounts (4 tools)
-| Tool | What it does |
-|------|-------------|
-| `rh11_subaccounts_list` | List team member sub-accounts |
-| `rh11_subaccounts_create` | Create a new sub-account |
-| `rh11_subaccounts_update` | Update sub-account details |
-| `rh11_subaccounts_delete` | Delete a sub-account |
 
 ## Services Explained
 

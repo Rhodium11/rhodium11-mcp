@@ -1,6 +1,6 @@
 ---
 name: amazon-ranking-tools
-description: "Amazon product ranking and sales velocity tools. Use when the user mentions Amazon ranking, BSR, product visibility, ATC, PGV, SFB, ranking campaigns, campaign scheduling, or wants to boost Amazon sales. Also use when asking about service rates, wallet balance, order tracking, or sub-accounts for ranking services. 21 MCP tools across Amazon, Walmart, and Target."
+description: "Amazon product ranking and sales velocity tools. Use when the user mentions Amazon ranking, BSR, product visibility, ATC, PGV, SFB, ranking campaigns, campaign scheduling, or wants to boost Amazon sales. Also use when asking about service rates, wallet balance, or order tracking for ranking services. 19 MCP tools for Amazon ranking campaigns."
 ---
 
 # Amazon Ranking Tools
@@ -9,7 +9,7 @@ Claude uses these instructions to help users manage Amazon product ranking campa
 
 ## When to Activate
 
-Use this skill when the user mentions: boosting Amazon product ranking, BSR, ATC/PGV/SFB campaigns, ranking project management, campaign scheduling, wallet balance, order tracking, sub-accounts, or service pricing for Amazon/Walmart/Target.
+Use this skill when the user mentions: boosting Amazon product ranking, BSR, ATC/PGV/SFB campaigns, ranking project management, campaign scheduling, wallet balance, order tracking, or service pricing for Amazon.
 
 ## Setup
 
@@ -35,7 +35,7 @@ If the user does not have `RH11_API_KEY` set, guide them:
 
 Auth is automatic — the server handles JWT exchange and refresh.
 
-## Tools (21)
+## Tools (19)
 
 All tools are prefixed `rh11_`:
 
@@ -43,13 +43,11 @@ All tools are prefixed `rh11_`:
 
 **Wallet** — `rh11_wallet_get_balance`, `rh11_wallet_get_transactions`
 
-**Projects** — `rh11_projects_list`, `rh11_projects_create`, `rh11_projects_get`, `rh11_projects_update`, `rh11_projects_archive`
+**Projects** — `rh11_projects_list`, `rh11_projects_create`, `rh11_projects_get`, `rh11_projects_update`, `rh11_projects_archive`, `rh11_projects_get_stats`
 
 **Schedule** — `rh11_schedule_get`, `rh11_schedule_set`, `rh11_schedule_quick_set`
 
 **Orders** — `rh11_orders_list`, `rh11_orders_get`, `rh11_orders_report_issue`
-
-**Sub-Accounts** — `rh11_subaccounts_list`, `rh11_subaccounts_create`, `rh11_subaccounts_update`, `rh11_subaccounts_delete`
 
 ## Services
 

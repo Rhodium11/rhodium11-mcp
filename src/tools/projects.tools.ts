@@ -1,7 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import type { RH11Client } from "../client/rh11-client.js";
-import type { Project, ProjectListItem, MessageResponse } from "../client/types.js";
+import type { Project, ProjectListItem, MessageResponse, ProjectStatsResponse } from "../client/types.js";
 import { formatResult, formatErrorResult } from "../utils/response.js";
 
 // Valid Amazon region codes (validated against CONSTANTS['MARKETPLACES'] in backend)
@@ -143,6 +143,38 @@ export function registerProjectsTools(server: McpServer, client: RH11Client) {
         const res = await client.request<MessageResponse>(
           "DELETE",
           `/api/v1/projects/${encodeURIComponent(params.ui_id)}`,
+        );
+        return formatResult(res.data);
+      } catch (e) {
+        return formatErrorResult(e);
+      }
+    },
+  );
+
+  server.tool(
+    "rh11_projects_get_stats",
+    "Get daily stats for a Rhodium11 project: service execution (SFB, ATC, Wishlist, PGV), SERP rankings, ARA analytics, Brand Referral, and Search Query data. Note: this call may be slow (~1-2s) due to 14+ backend DB queries.",
+    {
+      ui_id: z.string().describe("Project unique identifier"),
+      days: z
+        .number()
+        .int()
+        .min(1)
+        .max(365)
+        .optional()
+        .describe("Number of days of history (default 30, max 365)"),
+    },
+    { readOnlyHint: true },
+    async (params) => {
+      try {
+        const query: Record<string, string> = {};
+        if (params.days !== undefined) query.days = String(params.days);
+
+        const res = await client.request<ProjectStatsResponse>(
+          "GET",
+          `/api/v1/projects/${encodeURIComponent(params.ui_id)}/stats`,
+          undefined,
+          query,
         );
         return formatResult(res.data);
       } catch (e) {
