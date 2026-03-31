@@ -1,6 +1,6 @@
 # rhodium11-mcp
 
-MCP server that wraps the Rhodium11 Customer API as 21 MCP tools. Published to npm as `rhodium11-mcp`.
+MCP server that wraps the Rhodium11 Customer API as 22 MCP tools. Published to npm as `rhodium11-mcp`.
 
 ## Architecture
 
@@ -10,14 +10,14 @@ MCP Client (Claude Code / Cursor / etc.)
     ▼
 ┌─────────────────────────────┐
 │  rhodium11-mcp (this repo)  │
-│  McpServer + 21 tools       │
+│  McpServer + 22 tools       │
 │  RH11Client (JWT lifecycle) │
 └──────────┬──────────────────┘
            │  HTTPS (Bearer JWT)
            ▼
 ┌─────────────────────────────┐
 │  Customer API (mpux-flask)  │
-│  /api/v1/*  (24 endpoints)  │
+│  /api/v1/*  (25 endpoints)  │
 └─────────────────────────────┘
 ```
 

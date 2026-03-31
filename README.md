@@ -1,6 +1,6 @@
 # rhodium11-mcp
 
-MCP server for [Rhodium11](https://rhodium11.com) Amazon ranking services. Exposes 21 tools for managing projects, schedules, orders, wallet, and sub-accounts through any MCP-compatible AI agent.
+MCP server for [Rhodium11](https://rhodium11.com) Amazon ranking services. Exposes 22 tools for managing projects, schedules, orders, wallet, and sub-accounts through any MCP-compatible AI agent.
 
 ## Quick Start
 
@@ -33,7 +33,7 @@ Add the same configuration to your Cursor MCP settings.
 | `RH11_API_KEY` | Yes | — | Customer API key (`cak_` prefix) |
 | `RH11_BASE_URL` | No | `https://app.rhodium11.com` | API base URL |
 
-## Tools (21)
+## Tools (22)
 
 ### Account
 | Tool | Description |
@@ -79,6 +79,11 @@ Add the same configuration to your Cursor MCP settings.
 | `rh11_subaccounts_create` | Create sub-account |
 | `rh11_subaccounts_update` | Update sub-account (supports email rename) |
 | `rh11_subaccounts_delete` | Delete sub-account (deactivates associated API keys) |
+
+### Feedback
+| Tool | Description |
+|------|-------------|
+| `rh11_feedback_submit` | Submit feedback (10-5000 characters) |
 
 ## Authentication
 
