@@ -5,11 +5,12 @@ import type { Account, ServiceRates, Subscription } from "../client/types.js";
 import { formatResult, formatErrorResult } from "../utils/response.js";
 
 export function registerAccountTools(server: McpServer, client: RH11Client) {
-  server.tool(
+  server.registerTool(
     "rh11_account_get",
-    "Get Rhodium11 account info (email, name, company, plan, account type)",
-    {},
-    { readOnlyHint: true  },
+    {
+      description: "Get Rhodium11 account info (email, name, company, plan, account type)",
+      annotations: { readOnlyHint: true },
+    },
     async () => {
       try {
         const res = await client.request<Account>("GET", "/api/v1/account");
@@ -20,15 +21,18 @@ export function registerAccountTools(server: McpServer, client: RH11Client) {
     },
   );
 
-  server.tool(
+  server.registerTool(
     "rh11_account_update_profile",
-    "Update Rhodium11 account profile fields (first_name, last_name, company). At least one field required.",
     {
-      first_name: z.string().optional().describe("New first name"),
-      last_name: z.string().optional().describe("New last name"),
-      company: z.string().optional().describe("New company name"),
+      description:
+        "Update Rhodium11 account profile fields (first_name, last_name, company). At least one field required.",
+      inputSchema: {
+        first_name: z.string().optional().describe("New first name"),
+        last_name: z.string().optional().describe("New last name"),
+        company: z.string().optional().describe("New company name"),
+      },
+      annotations: { idempotentHint: true },
     },
-    { idempotentHint: true  },
     async (params) => {
       try {
         const body: Record<string, unknown> = {};
@@ -54,11 +58,13 @@ export function registerAccountTools(server: McpServer, client: RH11Client) {
     },
   );
 
-  server.tool(
+  server.registerTool(
     "rh11_account_get_service_rates",
-    "Get current Rhodium11 service pricing rates. Returns empty object if no plan is active.",
-    {},
-    { readOnlyHint: true  },
+    {
+      description:
+        "Get current Rhodium11 service pricing rates. Returns empty object if no plan is active.",
+      annotations: { readOnlyHint: true },
+    },
     async () => {
       try {
         const res = await client.request<ServiceRates>(
@@ -72,11 +78,12 @@ export function registerAccountTools(server: McpServer, client: RH11Client) {
     },
   );
 
-  server.tool(
+  server.registerTool(
     "rh11_account_get_subscription",
-    "Get Rhodium11 subscription info (plan label, fee, discount, wallet usage)",
-    {},
-    { readOnlyHint: true  },
+    {
+      description: "Get Rhodium11 subscription info (plan label, fee, discount, wallet usage)",
+      annotations: { readOnlyHint: true },
+    },
     async () => {
       try {
         const res = await client.request<Subscription>(

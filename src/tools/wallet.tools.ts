@@ -9,11 +9,13 @@ import {
 } from "../utils/response.js";
 
 export function registerWalletTools(server: McpServer, client: RH11Client) {
-  server.tool(
+  server.registerTool(
     "rh11_wallet_get_balance",
-    "Get Rhodium11 wallet balance (credits and USD). May include a warning if data is temporarily unavailable.",
-    {},
-    { readOnlyHint: true  },
+    {
+      description:
+        "Get Rhodium11 wallet balance (credits and USD). May include a warning if data is temporarily unavailable.",
+      annotations: { readOnlyHint: true },
+    },
     async () => {
       try {
         const res = await client.request<WalletBalance>(
@@ -27,24 +29,27 @@ export function registerWalletTools(server: McpServer, client: RH11Client) {
     },
   );
 
-  server.tool(
+  server.registerTool(
     "rh11_wallet_get_transactions",
-    "Get Rhodium11 wallet transaction history (paginated). Last page may include legacy entries beyond per_page count.",
     {
-      page: z.number().int().min(1).optional().describe("Page number (default 1)"),
-      per_page: z
-        .number()
-        .int()
-        .min(1)
-        .max(100)
-        .optional()
-        .describe("Results per page (default 50, max 100)"),
-      type: z
-        .enum(["credits", "usd"])
-        .optional()
-        .describe("Filter by transaction type: 'credits' or 'usd'"),
+      description:
+        "Get Rhodium11 wallet transaction history (paginated). Last page may include legacy entries beyond per_page count.",
+      inputSchema: {
+        page: z.number().int().min(1).optional().describe("Page number (default 1)"),
+        per_page: z
+          .number()
+          .int()
+          .min(1)
+          .max(100)
+          .optional()
+          .describe("Results per page (default 50, max 100)"),
+        type: z
+          .enum(["credits", "usd"])
+          .optional()
+          .describe("Filter by transaction type: 'credits' or 'usd'"),
+      },
+      annotations: { readOnlyHint: true },
     },
-    { readOnlyHint: true  },
     async (params) => {
       try {
         const query: Record<string, string> = {};

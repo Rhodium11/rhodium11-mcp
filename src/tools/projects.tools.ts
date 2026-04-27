@@ -14,19 +14,22 @@ const VALID_REGIONS = [
 ] as const;
 
 export function registerProjectsTools(server: McpServer, client: RH11Client) {
-  server.tool(
+  server.registerTool(
     "rh11_projects_list",
-    "List Rhodium11 Amazon projects with optional filters. Returns ASIN, keyword, active status, and current service volumes.",
     {
-      // Marketplace: currently Amazon-only. To re-enable walmart/target,
-      // restore: marketplace: z.enum(["amazon", "walmart", "target"]).optional()
-      region: z
-        .enum(VALID_REGIONS)
-        .optional()
-        .describe("Filter by Amazon region"),
-      active: z.boolean().optional().describe("Filter by active status"),
+      description:
+        "List Rhodium11 Amazon projects with optional filters. Returns ASIN, keyword, active status, and current service volumes.",
+      inputSchema: {
+        // Marketplace: currently Amazon-only. To re-enable walmart/target,
+        // restore: marketplace: z.enum(["amazon", "walmart", "target"]).optional()
+        region: z
+          .enum(VALID_REGIONS)
+          .optional()
+          .describe("Filter by Amazon region"),
+        active: z.boolean().optional().describe("Filter by active status"),
+      },
+      annotations: { readOnlyHint: true },
     },
-    { readOnlyHint: true  },
     async (params) => {
       try {
         const query: Record<string, string> = { marketplace: "amazon" };
@@ -46,25 +49,27 @@ export function registerProjectsTools(server: McpServer, client: RH11Client) {
     },
   );
 
-  server.tool(
+  server.registerTool(
     "rh11_projects_create",
-    "Create a new Rhodium11 Amazon project. If a project with the same ASIN+keyword+region was previously archived, it will be reactivated instead (returns 201). ASIN must be a valid Amazon ASIN. Keyword must be 3-200 characters.",
     {
-      // Marketplace: currently Amazon-only. To re-enable walmart/target,
-      // restore: marketplace: z.enum(["amazon", "walmart", "target"])
-      region: z
-        .enum(VALID_REGIONS)
-        .describe("Amazon region code"),
-      asin: z
-        .string()
-        .describe("Amazon ASIN (e.g. 'B01MTJK06C')"),
-      keyword: z
-        .string()
-        .min(3)
-        .max(200)
-        .describe("Target keyword (3-200 characters)"),
+      description:
+        "Create a new Rhodium11 Amazon project. If a project with the same ASIN+keyword+region was previously archived, it will be reactivated instead (returns 201). ASIN must be a valid Amazon ASIN. Keyword must be 3-200 characters.",
+      inputSchema: {
+        // Marketplace: currently Amazon-only. To re-enable walmart/target,
+        // restore: marketplace: z.enum(["amazon", "walmart", "target"])
+        region: z
+          .enum(VALID_REGIONS)
+          .describe("Amazon region code"),
+        asin: z
+          .string()
+          .describe("Amazon ASIN (e.g. 'B01MTJK06C')"),
+        keyword: z
+          .string()
+          .min(3)
+          .max(200)
+          .describe("Target keyword (3-200 characters)"),
+      },
     },
-    {},
     async (params) => {
       try {
         const res = await client.request<Project>("POST", "/api/v1/projects", {
@@ -80,13 +85,16 @@ export function registerProjectsTools(server: McpServer, client: RH11Client) {
     },
   );
 
-  server.tool(
+  server.registerTool(
     "rh11_projects_get",
-    "Get detailed info for a specific Rhodium11 project including schedule, services, and SERP data.",
     {
-      ui_id: z.string().describe("Project unique identifier"),
+      description:
+        "Get detailed info for a specific Rhodium11 project including schedule, services, and SERP data.",
+      inputSchema: {
+        ui_id: z.string().describe("Project unique identifier"),
+      },
+      annotations: { readOnlyHint: true },
     },
-    { readOnlyHint: true  },
     async (params) => {
       try {
         const res = await client.request<Project>(
@@ -100,14 +108,17 @@ export function registerProjectsTools(server: McpServer, client: RH11Client) {
     },
   );
 
-  server.tool(
+  server.registerTool(
     "rh11_projects_update",
-    "Update a Rhodium11 project. Currently supports toggling the active status (pause/resume). To archive a project, use rh11_projects_archive instead.",
     {
-      ui_id: z.string().describe("Project unique identifier"),
-      active: z.boolean().optional().describe("Set active status (true=resume, false=pause)"),
+      description:
+        "Update a Rhodium11 project. Currently supports toggling the active status (pause/resume). To archive a project, use rh11_projects_archive instead.",
+      inputSchema: {
+        ui_id: z.string().describe("Project unique identifier"),
+        active: z.boolean().optional().describe("Set active status (true=resume, false=pause)"),
+      },
+      annotations: { idempotentHint: true },
     },
-    { idempotentHint: true  },
     async (params) => {
       try {
         const body: Record<string, unknown> = {};
@@ -131,13 +142,16 @@ export function registerProjectsTools(server: McpServer, client: RH11Client) {
     },
   );
 
-  server.tool(
+  server.registerTool(
     "rh11_projects_archive",
-    "Archive (soft delete) a Rhodium11 Amazon project. The project can be reactivated by creating a new project with the same ASIN+keyword+region.",
     {
-      ui_id: z.string().describe("Project unique identifier"),
+      description:
+        "Archive (soft delete) a Rhodium11 Amazon project. The project can be reactivated by creating a new project with the same ASIN+keyword+region.",
+      inputSchema: {
+        ui_id: z.string().describe("Project unique identifier"),
+      },
+      annotations: { destructiveHint: true },
     },
-    { destructiveHint: true  },
     async (params) => {
       try {
         const res = await client.request<MessageResponse>(
@@ -151,20 +165,23 @@ export function registerProjectsTools(server: McpServer, client: RH11Client) {
     },
   );
 
-  server.tool(
+  server.registerTool(
     "rh11_projects_get_stats",
-    "Get daily stats for a Rhodium11 project: service execution (SFB, ATC, Wishlist, PGV), SERP rankings, ARA analytics, Brand Referral, and Search Query data. Note: this call may be slow (~1-2s) due to 14+ backend DB queries.",
     {
-      ui_id: z.string().describe("Project unique identifier"),
-      days: z
-        .number()
-        .int()
-        .min(1)
-        .max(365)
-        .optional()
-        .describe("Number of days of history (default 30, max 365)"),
+      description:
+        "Get daily stats for a Rhodium11 project: service execution (SFB, ATC, Wishlist, PGV), SERP rankings, ARA analytics, Brand Referral, and Search Query data. Note: this call may be slow (~1-2s) due to 14+ backend DB queries.",
+      inputSchema: {
+        ui_id: z.string().describe("Project unique identifier"),
+        days: z
+          .number()
+          .int()
+          .min(1)
+          .max(365)
+          .optional()
+          .describe("Number of days of history (default 30, max 365)"),
+      },
+      annotations: { readOnlyHint: true },
     },
-    { readOnlyHint: true },
     async (params) => {
       try {
         const query: Record<string, string> = {};

@@ -16,13 +16,16 @@ const scheduleEntrySchema = z.object({
 });
 
 export function registerScheduleTools(server: McpServer, client: RH11Client) {
-  server.tool(
+  server.registerTool(
     "rh11_schedule_get",
-    "Get the current schedule for a Rhodium11 project. Shows per-day service volumes (atc, sfb, pgv, wishlist).",
     {
-      ui_id: z.string().describe("Project unique identifier"),
+      description:
+        "Get the current schedule for a Rhodium11 project. Shows per-day service volumes (atc, sfb, pgv, wishlist).",
+      inputSchema: {
+        ui_id: z.string().describe("Project unique identifier"),
+      },
+      annotations: { readOnlyHint: true },
     },
-    { readOnlyHint: true  },
     async (params) => {
       try {
         const res = await client.request<ScheduleResponse>(
@@ -36,18 +39,21 @@ export function registerScheduleTools(server: McpServer, client: RH11Client) {
     },
   );
 
-  server.tool(
+  server.registerTool(
     "rh11_schedule_set",
-    "Set the full per-day schedule for a Rhodium11 project. Replaces any existing schedule. Each entry represents one day with volumes for atc, sfb, pgv, and wishlist. Max 365 entries.",
     {
-      ui_id: z.string().describe("Project unique identifier"),
-      schedule: z
-        .array(scheduleEntrySchema)
-        .min(1)
-        .max(365)
-        .describe("Array of daily schedule entries"),
+      description:
+        "Set the full per-day schedule for a Rhodium11 project. Replaces any existing schedule. Each entry represents one day with volumes for atc, sfb, pgv, and wishlist. Max 365 entries.",
+      inputSchema: {
+        ui_id: z.string().describe("Project unique identifier"),
+        schedule: z
+          .array(scheduleEntrySchema)
+          .min(1)
+          .max(365)
+          .describe("Array of daily schedule entries"),
+      },
+      annotations: { destructiveHint: true, idempotentHint: true },
     },
-    { destructiveHint: true, idempotentHint: true  },
     async (params) => {
       try {
         // Body must wrap entries in a `schedule` key
@@ -63,22 +69,25 @@ export function registerScheduleTools(server: McpServer, client: RH11Client) {
     },
   );
 
-  server.tool(
+  server.registerTool(
     "rh11_schedule_quick_set",
-    "Quick-set uniform daily volumes for a Rhodium11 project. WARNING: This clears any existing per-day schedule and replaces it with uniform values. All omitted fields default to 0.",
     {
-      ui_id: z.string().describe("Project unique identifier"),
-      atc: z.number().int().min(0).optional().describe("Add-to-cart volume per day (default 0)"),
-      sfb: z.number().int().min(0).optional().describe("Search-find-buy volume per day (default 0)"),
-      pgv: z.number().int().min(0).optional().describe("Page view volume per day (default 0)"),
-      wishlist: z
-        .number()
-        .int()
-        .min(0)
-        .optional()
-        .describe("Wishlist volume per day (not yet supported — must be 0)"),
+      description:
+        "Quick-set uniform daily volumes for a Rhodium11 project. WARNING: This clears any existing per-day schedule and replaces it with uniform values. All omitted fields default to 0.",
+      inputSchema: {
+        ui_id: z.string().describe("Project unique identifier"),
+        atc: z.number().int().min(0).optional().describe("Add-to-cart volume per day (default 0)"),
+        sfb: z.number().int().min(0).optional().describe("Search-find-buy volume per day (default 0)"),
+        pgv: z.number().int().min(0).optional().describe("Page view volume per day (default 0)"),
+        wishlist: z
+          .number()
+          .int()
+          .min(0)
+          .optional()
+          .describe("Wishlist volume per day (not yet supported — must be 0)"),
+      },
+      annotations: { destructiveHint: true, idempotentHint: true },
     },
-    { destructiveHint: true, idempotentHint: true  },
     async (params) => {
       try {
         const body: Record<string, unknown> = {
