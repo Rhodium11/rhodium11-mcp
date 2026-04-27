@@ -27,10 +27,10 @@
   "homepage": "https://rhodium11.com",
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/jejo.digital/rh11-mcp.git"
+    "url": "git+https://github.com/Rhodium11/rhodium11-mcp.git"
   },
   "bugs": {
-    "url": "https://gitlab.com/jejo.digital/rh11-mcp/-/issues"
+    "url": "https://github.com/Rhodium11/rhodium11-mcp/issues"
   },
   "engines": {
     "node": ">=20.0.0"
