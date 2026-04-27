@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { createRequire } from "node:module";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { RH11Client } from "./client/rh11-client.js";
@@ -8,9 +9,10 @@ import { registerWalletTools } from "./tools/wallet.tools.js";
 import { registerProjectsTools } from "./tools/projects.tools.js";
 import { registerScheduleTools } from "./tools/schedule.tools.js";
 import { registerOrdersTools } from "./tools/orders.tools.js";
-// Disabled — sub-accounts not useful via MCP. Uncomment to re-enable.
-// import { registerSubaccountsTools } from "./tools/subaccounts.tools.js";
 import { registerFeedbackTools } from "./tools/feedback.tools.js";
+
+const require = createRequire(import.meta.url);
+const pkg = require("../package.json") as { version: string };
 
 const apiKey = process.env.RH11_API_KEY;
 if (!apiKey) {
@@ -25,7 +27,7 @@ const client = new RH11Client(apiKey, baseUrl);
 
 const server = new McpServer({
   name: "rhodium11",
-  version: "0.1.0",
+  version: pkg.version,
 });
 
 registerAccountTools(server, client);
@@ -33,7 +35,6 @@ registerWalletTools(server, client);
 registerProjectsTools(server, client);
 registerScheduleTools(server, client);
 registerOrdersTools(server, client);
-// registerSubaccountsTools(server, client);
 registerFeedbackTools(server, client);
 
 const transport = new StdioServerTransport();

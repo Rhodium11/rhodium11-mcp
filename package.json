@@ -22,8 +22,16 @@
     "ranking",
     "ai-agent"
   ],
-  "author": "Rhodium11",
+  "author": "Rhodium11 <info@rhodium11.com> (https://rhodium11.com)",
   "license": "MIT",
+  "homepage": "https://rhodium11.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/jejo.digital/rh11-mcp.git"
+  },
+  "bugs": {
+    "url": "https://gitlab.com/jejo.digital/rh11-mcp/-/issues"
+  },
   "engines": {
     "node": ">=20.0.0"
   },
