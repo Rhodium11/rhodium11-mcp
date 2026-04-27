@@ -1,7 +1,7 @@
 {
   "name": "rhodium11-mcp",
   "version": "0.1.0",
-  "description": "MCP server for Rhodium11 Amazon ranking services",
+  "description": "MCP server for Rhodium11",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -17,10 +17,7 @@
   },
   "keywords": [
     "mcp",
-    "rhodium11",
-    "amazon",
-    "ranking",
-    "ai-agent"
+    "rhodium11"
   ],
   "author": "Rhodium11 <info@rhodium11.com> (https://rhodium11.com)",
   "license": "MIT",
