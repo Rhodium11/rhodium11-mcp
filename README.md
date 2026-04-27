@@ -1,6 +1,6 @@
 # rhodium11-mcp
 
-MCP server for [Rhodium11](https://rhodium11.com) Amazon ranking services. Exposes 19 tools for managing projects, schedules, orders, wallet, and feedback through any MCP-compatible AI agent.
+MCP server for [Rhodium11](https://rhodium11.com). Exposes 19 tools for managing projects, schedules, orders, wallet, and feedback through any MCP-compatible AI agent.
 
 ## Quick Start
 
