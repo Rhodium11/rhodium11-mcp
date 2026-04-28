@@ -121,14 +121,16 @@ export function registerProjectsTools(server: McpServer, client: RH11Client) {
     },
     async (params) => {
       try {
-        const body: Record<string, unknown> = {};
-        if (params.active !== undefined) body.active = params.active;
-
-        if (Object.keys(body).length === 0) {
+        // Backend expects `{action: "activate"|"pause"|"archive"}` (see mpux-flask
+        // routes_projects.py update_project). Translate the boolean MCP-facing
+        // `active` flag into the corresponding action verb. Archive uses its own tool.
+        if (params.active === undefined) {
           return formatErrorResult(
             new Error("At least one field (active) must be provided"),
           );
         }
+
+        const body = { action: params.active ? "activate" : "pause" };
 
         const res = await client.request<Project>(
           "PATCH",

@@ -38,7 +38,8 @@ export function registerAccountTools(server: McpServer, client: RH11Client) {
         const body: Record<string, unknown> = {};
         if (params.first_name !== undefined) body.first_name = params.first_name;
         if (params.last_name !== undefined) body.last_name = params.last_name;
-        if (params.company !== undefined) body.company = params.company;
+        // Backend's profile validator expects `company_name` (see mpux-flask validators.py).
+        if (params.company !== undefined) body.company_name = params.company;
 
         if (Object.keys(body).length === 0) {
           return formatErrorResult(
