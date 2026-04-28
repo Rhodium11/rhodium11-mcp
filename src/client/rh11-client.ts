@@ -27,6 +27,7 @@ export class RH11Client {
   constructor(
     private readonly apiKey: string,
     private readonly baseUrl: string,
+    private readonly userAgent: string = "rhodium11-mcp",
   ) {}
 
   /**
@@ -72,7 +73,10 @@ export class RH11Client {
   private async authenticate(): Promise<void> {
     const res = await fetch(`${this.baseUrl}/api/v1/auth/token`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": this.userAgent,
+      },
       body: JSON.stringify({ api_key: this.apiKey }),
     });
 
@@ -119,6 +123,7 @@ export class RH11Client {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "User-Agent": this.userAgent,
           Authorization: `Bearer ${refreshToken}`,
         },
       });
@@ -208,6 +213,7 @@ export class RH11Client {
 
     const headers: Record<string, string> = {
       Authorization: `Bearer ${this.jwt!.access_token}`,
+      "User-Agent": this.userAgent,
     };
 
     const options: RequestInit = { method, headers };

@@ -23,7 +23,12 @@ if (!apiKey) {
 const baseUrl =
   process.env.RH11_BASE_URL || "https://app.rhodium11.com";
 
-const client = new RH11Client(apiKey, baseUrl);
+// User-Agent identifies traffic as MCP-originated server-side so we can
+// differentiate MCP usage from other Customer API consumers and tag push
+// notifications accordingly.
+const userAgent = `rhodium11-mcp/${pkg.version}`;
+
+const client = new RH11Client(apiKey, baseUrl, userAgent);
 
 const server = new McpServer({
   name: "rhodium11",
