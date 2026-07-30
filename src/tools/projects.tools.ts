@@ -1,7 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import type { RH11Client } from "../client/rh11-client.js";
-import type { Project, ProjectListItem, MessageResponse, ProjectStatsResponse } from "../client/types.js";
+import type { Project, ProjectListItem, MessageResponse, ProjectStatsResponse, KeywordProjection } from "../client/types.js";
 import { formatResult, formatErrorResult } from "../utils/response.js";
 
 // Valid Amazon region codes (validated against CONSTANTS['MARKETPLACES'] in backend)
@@ -194,6 +194,29 @@ export function registerProjectsTools(server: McpServer, client: RH11Client) {
           `/api/v1/projects/${encodeURIComponent(params.ui_id)}/stats`,
           undefined,
           query,
+        );
+        return formatResult(res.data);
+      } catch (e) {
+        return formatErrorResult(e);
+      }
+    },
+  );
+
+  server.registerTool(
+    "rh11_projects_get_projection",
+    {
+      description:
+        "Get the recommended daily quantities for a project's keyword: how many purchases a day it takes to reach the top three, with a confidence range and matching add-to-cart and pageview volumes. Also returns how big the keyword is, what share the third-placed product holds, how often products that reach the top three keep the position, and a flag when the project is configured well above what the keyword can support. Use this before changing a schedule, or to check whether current volumes are sensible. Purchases are what move rank; add-to-carts and pageviews are supporting activity, not rank drivers on their own.",
+      inputSchema: {
+        ui_id: z.string().describe("Project unique identifier"),
+      },
+      annotations: { readOnlyHint: true },
+    },
+    async (params) => {
+      try {
+        const res = await client.request<KeywordProjection>(
+          "GET",
+          `/api/v1/projects/${encodeURIComponent(params.ui_id)}/projection`,
         );
         return formatResult(res.data);
       } catch (e) {

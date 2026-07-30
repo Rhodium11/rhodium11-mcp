@@ -1,6 +1,6 @@
 # rhodium11-mcp
 
-MCP server for [Rhodium11](https://rhodium11.com). Exposes 19 tools for managing projects, schedules, orders, wallet, and feedback through any MCP-compatible AI agent.
+MCP server for [Rhodium11](https://rhodium11.com). Exposes 20 tools for managing projects, schedules, orders, wallet, and feedback through any MCP-compatible AI agent.
 
 ## Quick Start
 
@@ -58,6 +58,7 @@ Add the same configuration to your Cursor MCP settings.
 | `rh11_projects_update` | Pause/resume a project |
 | `rh11_projects_archive` | Archive (soft delete) a project |
 | `rh11_projects_get_stats` | Get daily stats (execution, SERP, ARA, BR, SQR, ranks) |
+| `rh11_projects_get_projection` | Recommended daily quantities for the keyword, with range and over-spend flag |
 
 ### Schedule
 | Tool | Description |

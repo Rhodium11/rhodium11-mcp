@@ -215,3 +215,43 @@ export interface MessageResponse {
   message: string;
   [key: string]: unknown;
 }
+
+// ── Keyword projection (GET /projects/{ui_id}/projection) ────────────────────
+
+export interface KeywordProjection {
+  status: "ok" | "low_demand" | "no_data";
+  keyword: string;
+  region: string;
+  ui_id?: string;
+  asin?: string;
+  configured?: {
+    purchases_per_day: number;
+    add_to_carts_per_day: number;
+    pageviews_per_day: number;
+    wishlists_per_day: number;
+  };
+  recommended: {
+    purchases_per_day?: number;
+    purchases_per_day_low?: number;
+    purchases_per_day_high?: number;
+    add_to_carts_per_day?: number;
+    pageviews_per_day?: number;
+  };
+  keyword_market?: {
+    size: string;
+    search_frequency_rank: number;
+    estimated_purchases_per_day: number;
+    third_place_share_pct: number;
+  };
+  expectations?: {
+    hold_top3_after_2_weeks_pct: number;
+    hold_top3_after_4_weeks_pct: number;
+    low_confidence: boolean;
+  };
+  overspend?: {
+    services: Array<{ service: string; configured: number; recommended: number }>;
+    note: string;
+  };
+  data_through?: string;
+  message?: string;
+}
