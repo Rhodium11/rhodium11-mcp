@@ -20,7 +20,7 @@ describe("tool registration", () => {
 
     const registered = (server as any)._registeredTools as Record<string, unknown>;
     const names = Object.keys(registered);
-    expect(names.length).toBe(20);
+    expect(names.length).toBe(21);
     for (const [name, tool] of Object.entries(registered)) {
       expect(typeof (tool as any).handler, `${name} handler`).toBe("function");
     }

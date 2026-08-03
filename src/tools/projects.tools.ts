@@ -224,4 +224,36 @@ export function registerProjectsTools(server: McpServer, client: RH11Client) {
       }
     },
   );
+
+  server.registerTool(
+    "rh11_keywords_projection",
+    {
+      description:
+        "Research keywords BEFORE creating projects for them. Give it candidate keywords and it returns, for each, how big the keyword is, what share the third-placed product holds, and the daily purchases it would take to reach the top three, with a confidence range and matching add-to-cart and pageview volumes. Use it to compare candidates, size a launch, or check whether a keyword is worth targeting at all. Keywords Amazon barely reports come back as low_demand, meaning competition is minimal. Purchases are the rank driver; add-to-carts and pageviews are supporting activity, not a way to rank on their own. Max 100 keywords per call, and each account has a daily budget for newly looked-up keywords.",
+      inputSchema: {
+        keywords: z
+          .array(z.string().min(1))
+          .min(1)
+          .max(100)
+          .describe("Candidate keywords to evaluate (max 100 per call)"),
+        region: z
+          .enum(VALID_REGIONS)
+          .optional()
+          .describe("Amazon region, defaults to US"),
+      },
+      annotations: { readOnlyHint: true },
+    },
+    async (params) => {
+      try {
+        const res = await client.request<KeywordProjection[]>(
+          "POST",
+          "/api/v1/keywords/projection",
+          { keywords: params.keywords, region: params.region ?? "US" },
+        );
+        return formatResult(res.data);
+      } catch (e) {
+        return formatErrorResult(e);
+      }
+    },
+  );
 }
