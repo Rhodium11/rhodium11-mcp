@@ -1,8 +1,8 @@
 /** API response envelope for success responses. */
-export interface ApiSuccessResponse<T> {
+export interface ApiSuccessResponse<T, M = PaginationMeta> {
   status: "success";
   data: T;
-  meta?: PaginationMeta;
+  meta?: M;
 }
 
 /** API response envelope for error responses. */
@@ -15,6 +15,18 @@ export interface ApiErrorResponse {
 }
 
 export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
+
+/** Returned by POST /keywords/projection. Carries the daily budget counters,
+ *  so an agent can pace itself instead of discovering the limit by hitting it.
+ *  Only newly looked-up keywords count against the budget; cached ones are
+ *  free. */
+export interface ProjectionMeta {
+  region: string;
+  requested: number;
+  new_keywords_looked_up: number;
+  daily_budget: number;
+  daily_budget_used: number;
+}
 
 export interface PaginationMeta {
   page: number;
@@ -218,8 +230,25 @@ export interface MessageResponse {
 
 // ── Keyword projection (GET /projects/{ui_id}/projection) ────────────────────
 
+export type ProjectionStatus =
+  /** A recommendation is available. */
+  | "ok"
+  /** Too little search volume for extra activity to buy rank. No numbers. */
+  | "low_demand"
+  /** The term is not in the search-terms archive. No numbers. */
+  | "no_data"
+  /** This marketplace is not covered by the archive. No numbers. */
+  | "unsupported"
+  /** That marketplace's search data is behind, so answering now would be
+   *  based on old activity. Self-healing; retry later. No numbers. */
+  | "stale_market"
+  /** The upstream archive could not be reached. Transient. No numbers. */
+  | "error"
+  /** Keyword projections are not configured on this environment. */
+  | "unconfigured";
+
 export interface KeywordProjection {
-  status: "ok" | "low_demand" | "no_data";
+  status: ProjectionStatus;
   keyword: string;
   region: string;
   ui_id?: string;
@@ -242,10 +271,20 @@ export interface KeywordProjection {
     search_frequency_rank: number;
     estimated_purchases_per_day: number;
     third_place_share_pct: number;
+    /** How third_place_share_pct was arrived at:
+     *  "conversion" - measured from Amazon's published purchase share.
+     *  "click"      - estimated from click share; treat as an estimate and
+     *                 work from the low/high range, not the single figure.
+     *  "tier"       - not measured on this keyword at all; the typical share
+     *                 for keywords of this size. */
+    third_place_share_basis?: "conversion" | "click" | "tier";
   };
   expectations?: {
     hold_top3_after_2_weeks_pct: number;
     hold_top3_after_4_weeks_pct: number;
+    /** True when the figure is derived rather than measured, or rests on a
+     *  thin window. The low/high range is widened to match; prefer it over
+     *  purchases_per_day when this is set. */
     low_confidence: boolean;
   };
   overspend?: {

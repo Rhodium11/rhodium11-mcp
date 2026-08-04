@@ -1,7 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import type { RH11Client } from "../client/rh11-client.js";
-import type { Project, ProjectListItem, MessageResponse, ProjectStatsResponse, KeywordProjection } from "../client/types.js";
+import type { Project, ProjectListItem, MessageResponse, ProjectStatsResponse, KeywordProjection, ProjectionMeta } from "../client/types.js";
 import { formatResult, formatErrorResult } from "../utils/response.js";
 
 // Valid Amazon region codes (validated against CONSTANTS['MARKETPLACES'] in backend)
@@ -206,7 +206,7 @@ export function registerProjectsTools(server: McpServer, client: RH11Client) {
     "rh11_projects_get_projection",
     {
       description:
-        "Get the recommended daily quantities for a project's keyword: how many purchases a day it takes to reach the top three, with a confidence range and matching add-to-cart and pageview volumes. Also returns how big the keyword is, what share the third-placed product holds, how often products that reach the top three keep the position, and a flag when the project is configured well above what the keyword can support. Use this before changing a schedule, or to check whether current volumes are sensible. Purchases are what move rank; add-to-carts and pageviews are supporting activity, not rank drivers on their own.",
+        "Get the recommended daily quantities for a project's keyword: how many purchases a day it takes to reach the top three, with a confidence range and matching add-to-cart and pageview volumes. Also returns how big the keyword is, what share the third-placed product holds, how often products that reach the top three keep the position, and a flag when the project is configured well above what the keyword can support. Use this before changing a schedule, or to check whether current volumes are sensible. Purchases do most of the ranking work; add-to-carts and pageviews carry far less weight on their own and are sized as supporting activity. Check keyword_market.third_place_share_basis: 'conversion' means measured, 'click' means estimated from click data, 'tier' means the typical share for keywords this size rather than anything measured on this one. When expectations.low_confidence is true, work from purchases_per_day_low/high rather than the single figure. A status other than 'ok' means no numbers are available and the message says why; 'stale_market' and 'error' are temporary, 'unsupported' and 'no_data' are not.",
       inputSchema: {
         ui_id: z.string().describe("Project unique identifier"),
       },
@@ -229,7 +229,7 @@ export function registerProjectsTools(server: McpServer, client: RH11Client) {
     "rh11_keywords_projection",
     {
       description:
-        "Research keywords BEFORE creating projects for them. Give it candidate keywords and it returns, for each, how big the keyword is, what share the third-placed product holds, and the daily purchases it would take to reach the top three, with a confidence range and matching add-to-cart and pageview volumes. Use it to compare candidates, size a launch, or check whether a keyword is worth targeting at all. Keywords Amazon barely reports come back as low_demand, meaning competition is minimal. Purchases are the rank driver; add-to-carts and pageviews are supporting activity, not a way to rank on their own. Max 100 keywords per call, and each account has a daily budget for newly looked-up keywords.",
+        "Research keywords BEFORE creating projects for them. Give it candidate keywords and it returns, for each, how big the keyword is, what share the third-placed product holds, and the daily purchases it would take to reach the top three, with a confidence range and matching add-to-cart and pageview volumes. Use it to compare candidates, size a launch, or check whether a keyword is worth targeting at all. Keywords Amazon barely reports come back as low_demand, meaning competition is minimal. Purchases do most of the ranking work; add-to-carts and pageviews carry far less weight on their own. Check keyword_market.third_place_share_basis to tell a measured share from one estimated from clicks or substituted from keywords of the same size, and prefer the low/high range whenever expectations.low_confidence is true. Returns {projections, budget}: budget carries daily_budget and daily_budget_used so you can pace yourself. Only newly looked-up keywords count against it; cached ones are free. Max 100 keywords per call.",
       inputSchema: {
         keywords: z
           .array(z.string().min(1))
@@ -245,12 +245,15 @@ export function registerProjectsTools(server: McpServer, client: RH11Client) {
     },
     async (params) => {
       try {
-        const res = await client.request<KeywordProjection[]>(
+        const res = await client.request<KeywordProjection[], ProjectionMeta>(
           "POST",
           "/api/v1/keywords/projection",
           { keywords: params.keywords, region: params.region ?? "US" },
         );
-        return formatResult(res.data);
+        // Pass the budget counters through. The description tells the agent a
+        // daily budget exists; without these it can only find the limit by
+        // hitting it.
+        return formatResult({ projections: res.data, budget: res.meta });
       } catch (e) {
         return formatErrorResult(e);
       }

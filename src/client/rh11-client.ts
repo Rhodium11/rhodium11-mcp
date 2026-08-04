@@ -2,6 +2,7 @@ import { RH11ApiError } from "../utils/errors.js";
 import type {
   ApiResponse,
   ApiSuccessResponse,
+  PaginationMeta,
   JwtState,
   TokenResponse,
   RefreshResponse,
@@ -161,12 +162,12 @@ export class RH11Client {
    * Make an authenticated API request.
    * Retries once on 401 (token expired mid-request).
    */
-  async request<T>(
+  async request<T, M = PaginationMeta>(
     method: string,
     path: string,
     body?: Record<string, unknown>,
     query?: Record<string, string>,
-  ): Promise<ApiSuccessResponse<T>> {
+  ): Promise<ApiSuccessResponse<T, M>> {
     await this.ensureAuth();
     const response = await this.doRequest<T>(method, path, body, query);
 
@@ -182,7 +183,7 @@ export class RH11Client {
           retry.error.message,
         );
       }
-      return retry as ApiSuccessResponse<T>;
+      return retry as ApiSuccessResponse<T, M>;
     }
 
     if (response.status === "error") {
@@ -193,7 +194,7 @@ export class RH11Client {
       );
     }
 
-    return response as ApiSuccessResponse<T>;
+    return response as ApiSuccessResponse<T, M>;
   }
 
   private async doRequest<T>(
