@@ -33,7 +33,7 @@ Add the same configuration to your Cursor MCP settings.
 | `RH11_API_KEY` | Yes | — | Customer API key (`cak_` prefix) |
 | `RH11_BASE_URL` | No | `https://app.rhodium11.com` | API base URL |
 
-## Tools (19)
+## Tools (21)
 
 ### Account
 | Tool | Description |
